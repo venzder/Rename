@@ -20,17 +20,28 @@ def check(dir_temp, dir_result):
             shutil.copy(os.path.join(dir_temp, obj), dir_result)
 
 
+def get_name(file_path):
+    with open(file_path, 'r', encoding='utf-8') as xml:
+        xml_str = xml.read()
+        name = re.search(r'(<Parcel CadastralNumber=)"([0-9:]+)"', xml_str)
+        name_final = name.group(2)
+        name_final_correct = re.sub(':', '_', name_final)
+    return f'{name_final_correct}.xml'
+
+
 def rename(path_rename):
     xmls = os.listdir(path_rename)
     for file in xmls:
         if os.path.isfile(os.path.join(path_rename, file)):
-            with open(os.path.join(path_rename, file), 'r', encoding='utf-8') as xml:
-                xml_str = xml.read()
-                name = re.search(r'(<Parcel CadastralNumber=)"([0-9:]+)"', xml_str)
-                name_final = name.group(2)
-                name_final_correct = re.sub(':', '_', name_final)
-            os.chdir(path_rename)
-            os.rename(file, f'{name_final_correct}.xml')
+            path = os.path.join(path_rename, file)
+            name = get_name(path)
+            list_dir = os.listdir(path_rename)
+            if name in list_dir:
+                print(f'Файл с именем {name} имеет дубликаты. Дубликат удален.')
+                os.remove(os.path.join(path_rename, file))
+            else:
+                os.chdir(path_rename)
+                os.rename(file, name)
 
 
 def delete_files(dir_delete):
@@ -65,7 +76,7 @@ while True:
             shutil.rmtree(path_temp)
             print('Временные файлы удалены')
 
-            print('Переименование исходных данных выполнена')
+            print('Переименование исходных данных выполнено')
         else:
             print('Вы неправильно указали исходную дирректорию')
     elif choice == 'n':
