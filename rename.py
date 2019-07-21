@@ -1,6 +1,7 @@
 import zipfile
 import os
 import re
+import shutil
 
 
 def unzip(path_in, path_out):
@@ -9,6 +10,14 @@ def unzip(path_in, path_out):
         if zipfile.is_zipfile(os.path.join(path_in, arch)):
             with zipfile.ZipFile(os.path.join(path_in, arch), 'r') as zip_file:
                 zip_file.extractall(path_out)
+
+
+def check(dir_temp, dir_result):
+    lst_dir_temp = os.listdir(dir_temp)
+    lst_dir_result = os.listdir(dir_result)
+    for obj in lst_dir_temp:
+        if obj not in lst_dir_result:
+            shutil.copy(os.path.join(dir_temp, obj), dir_result)
 
 
 def rename(path_rename):
@@ -31,13 +40,15 @@ while True:
         root_zip = input('Введите путь места расположения исходного каталога ')
         if os.path.exists(root_zip):
             path_zip = input('Введите путь для распакованных файлов основного архива ')
+            path_temp = os.path.join(path_zip, 'temp')
             unzip(root_zip, path_zip)
-            path_zip2 = os.path.join(path_zip, 'results')
-            unzip(path_zip, path_zip2)
+            unzip(path_zip, path_temp)
             print('Распаковка файлов завершена')
 
             path_xml = os.path.join(path_zip, 'results')
-            rename(path_xml)
+            os.mkdir(path_xml)
+            rename(path_temp)
+            check(path_temp, path_xml)
 
             files = os.listdir(path_zip)
             for file in files:
