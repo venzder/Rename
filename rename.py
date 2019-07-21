@@ -33,6 +33,15 @@ def rename(path_rename):
             os.rename(file, f'{name_final_correct}.xml')
 
 
+def delete_files(dir_delete):
+    files = os.listdir(dir_delete)
+    for file in files:
+        if os.path.isdir(os.path.join(dir_delete, file)):
+            pass
+        else:
+            os.remove(os.path.join(dir_delete, file))
+
+
 while True:
     choice_input = input('Желаете поработать с архивами? Y/N ')
     choice = choice_input.lower()
@@ -46,16 +55,14 @@ while True:
             print('Распаковка файлов завершена')
 
             path_xml = os.path.join(path_zip, 'results')
-            os.mkdir(path_xml)
+            if not os.path.exists(path_xml):
+                os.mkdir(path_xml)
             rename(path_temp)
             check(path_temp, path_xml)
+            delete_files(path_zip)
 
-            files = os.listdir(path_zip)
-            for file in files:
-                if os.path.isdir(os.path.join(path_zip, file)):
-                    pass
-                else:
-                    os.remove(os.path.join(path_zip, file))
+            os.chdir(path_zip)
+            shutil.rmtree(path_temp)
             print('Временные файлы удалены')
 
             print('Переименование исходных данных выполнена')
