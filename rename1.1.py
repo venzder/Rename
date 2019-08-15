@@ -2,6 +2,7 @@ import zipfile
 import os
 import re
 import shutil
+from pathlib import Path
 
 
 def unzip(path_in, path_out):
@@ -21,18 +22,19 @@ def check(dir_temp, dir_result):
 
 
 def get_name(file_path):
-    with open(file_path, 'r', encoding='utf-8') as xml:
-        xml_str = xml.read()
-        name = re.search(r'(<Parcel CadastralNumber=)"([0-9:]+)"', xml_str)
-        name_final = name.group(2)
-        name_final_correct = re.sub(':', '_', name_final)
-    return f'{name_final_correct}.xml'
+    if Path(file_path).suffix == '.xml':
+        with open(file_path, 'r', encoding='utf-8') as xml:
+            xml_str = xml.read()
+            name = re.search(r'(<Parcel CadastralNumber=)"([0-9:]+)"', xml_str)
+            name_final = name.group(2)
+            name_final_correct = re.sub(':', '_', name_final)
+        return f'{name_final_correct}.xml'
 
 
 def rename(path_rename):
     xmls = os.listdir(path_rename)
     for file in xmls:
-        if os.path.isfile(os.path.join(path_rename, file)):
+        if Path(os.path.join(path_rename, file)).suffix == '.xml':
             path = os.path.join(path_rename, file)
             name = get_name(path)
             list_dir = os.listdir(path_rename)
