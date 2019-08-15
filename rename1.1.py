@@ -56,6 +56,12 @@ def delete_files(dir_delete):
             os.remove(os.path.join(dir_delete, file))
 
 
+def check_for_zip(dir_zip):
+    lst = os.listdir(dir_zip)
+    lst_bool = [i.endswith('.zip') for i in lst]
+    return any(lst_bool)
+
+
 while True:
     choice_input = input('Желаете поработать с архивами? Y/N ')
     choice = choice_input.lower()
@@ -64,23 +70,27 @@ while True:
         if os.path.exists(root_zip):
             path_zip = input('Введите путь для распакованных файлов основного архива ')
             if not os.path.exists(path_zip) or root_zip == path_zip:
-                path_temp = os.path.join(path_zip, 'temp')
-                unzip(root_zip, path_zip)
-                unzip(path_zip, path_temp)
-                print('Распаковка файлов завершена')
+                if check_for_zip(root_zip):
+                    path_temp = os.path.join(path_zip, 'temp')
+                    unzip(root_zip, path_zip)
+                    if check_for_zip(path_zip):
+                        unzip(path_zip, path_temp)
+                        print('Распаковка файлов завершена')
+                        path_xml = os.path.join(path_zip, 'results')
+                        if not os.path.exists(path_xml):
+                            os.mkdir(path_xml)
+                        rename(path_temp)
+                        check_and_copy(path_temp, path_xml)
+                        delete_files(path_zip)
+                        os.chdir(path_zip)
+                        shutil.rmtree(path_temp)
+                        print('Временные файлы удалены')
+                        print('Переименование исходных данных выполнено')
+                    else:
+                        print(f'Дирректория {path_zip} не соответствует формату')
+                else:
+                    print(f'Дирректория {root_zip} уже обработана или не соответствует формату')
 
-                path_xml = os.path.join(path_zip, 'results')
-                if not os.path.exists(path_xml):
-                    os.mkdir(path_xml)
-                rename(path_temp)
-                check_and_copy(path_temp, path_xml)
-                delete_files(path_zip)
-
-                os.chdir(path_zip)
-                shutil.rmtree(path_temp)
-                print('Временные файлы удалены')
-
-                print('Переименование исходных данных выполнено')
             else:
                 print('Вы ввели существующую папку. Это недопустимо. Укажите новую папку или исходную.')
         else:
