@@ -13,12 +13,13 @@ def unzip(path_in, path_out):
                 zip_file.extractall(path_out)
 
 
-def check(dir_temp, dir_result):
+def check_and_copy(dir_temp, dir_result):
     lst_dir_temp = os.listdir(dir_temp)
     lst_dir_result = os.listdir(dir_result)
     for obj in lst_dir_temp:
-        if obj not in lst_dir_result:
-            shutil.copy(os.path.join(dir_temp, obj), dir_result)
+        if Path(os.path.join(dir_temp, obj)).suffix == '.xml':
+            if obj not in lst_dir_result:
+                shutil.copy(os.path.join(dir_temp, obj), dir_result)
 
 
 def get_name(file_path):
@@ -71,7 +72,7 @@ while True:
             if not os.path.exists(path_xml):
                 os.mkdir(path_xml)
             rename(path_temp)
-            check(path_temp, path_xml)
+            check_and_copy(path_temp, path_xml)
             delete_files(path_zip)
 
             os.chdir(path_zip)
